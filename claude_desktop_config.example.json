@@ -9,7 +9,7 @@
         "weather.py"
       ],
       "env": {
-        "KMA_APIHUB_KEY": "W-PO7eHRRYyjzu3h0YWMxg",
+        "KMA_APIHUB_KEY": "여기에-APIHub-authKey",
         "KMA_API_KEY": "여기에-공공데이터포털-일반인증키"
       }
     }
