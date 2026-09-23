@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
 <link rel="icon" type="image/svg+xml" href="logo/gangsu-symbol.svg">
-<title>지역별 강수량·저수율</title>
+<title>지점 조회 — 강수</title>
 <style>
   :root{
     color-scheme: light;
@@ -15,176 +15,226 @@
     --text-1:#0e1a1f; --text-2:#44565e; --text-3:#5b6a71;
     --rain:#00728f; --rain-fill:rgba(0,114,143,.14);
     --store:#d9632c; --store-fill:rgba(217,99,44,.14);
-    --grid:#e8eef0;
+    --grid:#e8eef0; --deep:#0a303e;
     --sans:"IBM Plex Sans KR",system-ui,-apple-system,sans-serif;
     --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,monospace;
+    --side:268px; --drawer:430px;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--surface-0);color:var(--text-1);
-    font:16px/1.7 var(--sans);font-weight:400;-webkit-font-smoothing:antialiased}
+  html,body{height:100%}
+  body{margin:0;overflow:hidden;background:var(--surface-0);color:var(--text-1);
+    font:16px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
   .num,.tile .v,th,td{font-variant-numeric:tabular-nums}
-  .wrap{max-width:1100px;margin:0 auto;padding:32px 16px 64px}
-  .bar{display:flex;align-items:center;gap:24px;background:var(--surface-1);
-    border-radius:999px;padding:12px 24px;margin-bottom:28px;
-    box-shadow:0 2px 20px rgba(14,26,31,.06)}
-  .bar .brand{display:flex;align-items:center;text-decoration:none;flex:none}
-  .bar .brand img{height:26px;width:auto;display:block}
-  .bar a.lnk{margin-left:auto;color:var(--text-2);text-decoration:none;font-size:14.5px}
-  .bar a.lnk:hover,.bar a.lnk:focus-visible{color:var(--rain)}
   :focus-visible{outline:2px solid var(--rain);outline-offset:3px}
-  header h1{font-size:clamp(26px,3.3vw,36px);font-weight:600;margin:0 0 8px;letter-spacing:-.022em}
-  header p{margin:0;color:var(--text-2);font-size:14px}
-  .card{background:var(--surface-1);border:1px solid var(--border);
-    border-radius:20px;padding:26px;margin-top:20px}
-  .filters{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
-  .f{display:flex;flex-direction:column;gap:5px;min-width:150px;flex:1 1 170px}
-  .f label{font-size:12px;color:var(--text-2);font-weight:600}
-  select,input{font:inherit;font-size:14.5px;padding:10px 12px;border-radius:10px;
-    border:1px solid var(--border);background:var(--surface-1);color:var(--text-1);width:100%}
-  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:20px}
-  .tile{background:var(--surface-1);border:1px solid var(--border);border-radius:16px;padding:18px 20px}
-  .tile .k{font-size:12px;color:var(--text-2);font-weight:600}
-  .tile .v{font-size:30px;font-weight:700;margin-top:4px;letter-spacing:-.025em}
-  .tile .u{font-size:13px;color:var(--text-3);font-weight:400;margin-left:3px}
-  .tile .s{font-size:12px;color:var(--text-3);margin-top:2px}
-  h2{font-size:15px;margin:0 0 2px}
-  .sub{font-size:12.5px;color:var(--text-2);margin:0 0 14px}
-  .chart{position:relative;width:100%}
-  svg{display:block;width:100%;height:auto;overflow:visible}
+
+  .app{height:100%;display:flex;flex-direction:column;padding:16px 20px 20px;gap:14px}
+
+  .bar{flex:none;display:flex;align-items:center;gap:24px;background:var(--surface-1);
+    border-radius:999px;padding:10px 22px;box-shadow:0 2px 20px rgba(14,26,31,.06)}
+  .bar .brand{display:flex;align-items:center;text-decoration:none;flex:none}
+  .bar .brand img{height:24px;width:auto;display:block}
+  .bar .lnk{margin-left:auto;color:var(--text-2);text-decoration:none;font-size:14.5px}
+  .bar .lnk:hover,.bar .lnk:focus-visible{color:var(--rain)}
+
+  .stage{flex:1;min-height:0;display:flex;gap:14px}
+  .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+
+  .head{flex:none}
+  .head h1{margin:0;font-size:clamp(19px,2vw,25px);font-weight:600;letter-spacing:-.022em}
+  .head p{margin:2px 0 0;color:var(--text-2);font-size:13px;font-weight:300}
+
+  .tiles{flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .tile{background:var(--surface-1);border:1px solid var(--border);
+    border-radius:14px;padding:12px 15px;min-width:0}
+  .tile .k{font-size:11.5px;color:var(--text-2);font-weight:600;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .v{font-size:25px;font-weight:700;letter-spacing:-.025em;line-height:1.2;
+    margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tile .v small{font-size:.5em;font-weight:400;color:var(--text-3);margin-left:3px}
+  .tile .s{font-size:11.5px;color:var(--text-3);margin-top:1px;font-weight:300;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .charts{flex:1;min-height:0;display:flex;gap:12px}
+  .card{flex:1;min-width:0;display:flex;flex-direction:column;
+    background:var(--surface-1);border:1px solid var(--border);
+    border-radius:18px;padding:16px 18px 12px}
+  .card h2{margin:0;font-size:14.5px;font-weight:600}
+  .card .sub{margin:1px 0 8px;font-size:12px;color:var(--text-2);font-weight:300}
+  .chart{position:relative;flex:1;min-height:0}
+  .chart svg{display:block;overflow:visible}
+  .empty{flex:1;display:grid;place-items:center;text-align:center;
+    color:var(--text-3);font-size:13.5px;font-weight:300;padding:16px}
+
   .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .1s;
-    background:var(--surface-1);border:1px solid var(--border);border-radius:8px;
-    padding:7px 10px;font-size:12.5px;white-space:nowrap;
-    box-shadow:0 4px 14px rgba(0,0,0,.14);z-index:5}
-  .tip b{display:block;color:var(--text-2);font-weight:600;font-size:11.5px;margin-bottom:2px}
-  .note{background:var(--surface-1);border:1px solid var(--border);border-radius:10px;
-    padding:14px 16px;color:var(--text-2);font-size:13.5px;margin-top:20px}
-  details{margin-top:20px}
-  summary{cursor:pointer;font-size:14px;font-weight:600;padding:10px 0}
-  table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
-  th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--border)}
+    background:var(--surface-1);border:1px solid var(--border);border-radius:10px;
+    padding:6px 10px;font-size:12px;white-space:nowrap;z-index:5;
+    box-shadow:0 4px 14px rgba(14,26,31,.14)}
+  .tip b{display:block;color:var(--text-2);font-weight:600;font-size:11px;margin-bottom:1px}
+
+  /* 오른쪽 필터 열 */
+  .side{flex:none;width:var(--side);display:flex;flex-direction:column;gap:10px;
+    background:var(--surface-1);border:1px solid var(--border);
+    border-radius:18px;padding:16px}
+  .side h2{margin:0 0 2px;font-size:12px;font-weight:600;color:var(--text-2);
+    letter-spacing:.06em;font-family:var(--mono)}
+  .f{display:flex;flex-direction:column;gap:5px}
+  .f label{font-size:12px;color:var(--text-2);font-weight:600}
+  select,input{font:inherit;font-size:14px;padding:9px 11px;border-radius:10px;
+    border:1px solid var(--border);background:var(--surface-1);color:var(--text-1);width:100%}
+  .side .spacer{flex:1;min-height:8px}
+  .tabbtn{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    width:100%;font:inherit;font-size:14px;font-weight:500;cursor:pointer;
+    padding:11px 14px;border-radius:12px;border:1px solid var(--border);
+    background:var(--surface-0);color:var(--text-1)}
+  .tabbtn:hover{border-color:var(--rain);color:var(--rain)}
+  .tabbtn[aria-expanded="true"]{background:var(--deep);border-color:var(--deep);color:#fff}
+  .tabbtn span.ar{font-family:var(--mono);font-size:13px}
+
+  /* 표 서랍 */
+  .drawer{flex:none;width:0;overflow:hidden;transition:width .22s ease;
+    display:flex;flex-direction:column}
+  .drawer[data-open]{width:var(--drawer)}
+  .drawer .inner{width:var(--drawer);flex:1;min-height:0;display:flex;flex-direction:column;
+    background:var(--surface-1);border:1px solid var(--border);border-radius:18px;
+    padding:16px 18px;margin-left:14px}
+  .drawer h2{margin:0 0 10px;font-size:14.5px;font-weight:600}
+  .scroll{flex:1;min-height:0;overflow:auto;border:1px solid var(--border);border-radius:12px}
+  table{width:100%;border-collapse:collapse;font-size:13px;line-height:1.5}
+  th,td{padding:6px 10px;text-align:right;border-bottom:1px solid var(--border)}
   th:first-child,td:first-child{text-align:left}
   th{color:var(--text-2);font-weight:600;position:sticky;top:0;background:var(--surface-1)}
-  .scroll{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:14px}
-  footer{margin-top:32px;color:var(--text-3);font-size:12.5px;line-height:1.8}
   .muted{color:var(--text-3)}
+  .foot{flex:none;margin-top:10px;font-size:11.5px;color:var(--text-3);
+    font-weight:300;line-height:1.6}
+
+  /* 좁은 화면: 고정 레이아웃을 풀고 세로 스크롤로 */
+  @media (max-width:960px){
+    body{overflow:auto}
+    .app{height:auto;min-height:100%}
+    .stage{flex-direction:column}
+    .side{width:auto}
+    .side .spacer{display:none}
+    .tiles{grid-template-columns:repeat(2,1fr)}
+    .charts{flex-direction:column}
+    .card{min-height:280px}
+    .drawer,.drawer[data-open]{width:auto}
+    .drawer .inner{width:auto;margin-left:0;margin-top:14px;min-height:340px}
+    .drawer:not([data-open]){display:none}
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="app">
   <nav class="bar">
     <a class="brand" href="index.html" aria-label="강수 홈"><img src="logo/gangsu-horizontal.svg" alt="강수"></a>
     <a class="lnk" href="index.html">&#8592; 개요로 돌아가기</a>
   </nav>
-  <header>
-    <h1>지역별 강수량 · 농업용수 저수율</h1>
-    <p id="head-sub">데이터를 불러오는 중…</p>
-  </header>
 
-  <div class="card">
-    <div class="filters">
-      <div class="f" style="flex:2 1 260px">
-        <label for="q">지역 검색</label>
-        <input id="q" type="search" placeholder="지역명 또는 지점번호" autocomplete="off">
+  <div class="stage">
+    <div class="main">
+      <div class="head">
+        <h1>지역별 강수량 · 농업용수 저수율</h1>
+        <p id="head-sub">데이터를 불러오는 중…</p>
       </div>
-      <div class="f" style="flex:2 1 240px">
-        <label for="area">지역</label><select id="area"></select>
+      <div class="tiles" id="tiles"></div>
+      <div class="charts">
+        <section class="card">
+          <h2>월별 강수량 (일평균)</h2>
+          <p class="sub" id="rain-sub"></p>
+          <div class="chart" id="rain-chart"></div>
+        </section>
+        <section class="card" id="store-card">
+          <h2>월별 농업용수 저수율</h2>
+          <p class="sub" id="store-sub"></p>
+          <div class="chart" id="store-chart"></div>
+        </section>
       </div>
+    </div>
+
+    <aside class="side">
+      <h2>조회 조건</h2>
+      <div class="f"><label for="q">지역 검색</label>
+        <input id="q" type="search" placeholder="지역명 또는 지점번호" autocomplete="off"></div>
+      <div class="f"><label for="area">지역</label><select id="area"></select></div>
       <div class="f"><label for="from">시작</label><select id="from"></select></div>
       <div class="f"><label for="to">종료</label><select id="to"></select></div>
+      <div class="spacer"></div>
+      <button class="tabbtn" id="tabbtn" aria-expanded="false" aria-controls="drawer">
+        표로 보기 <span class="ar" aria-hidden="true">›</span></button>
+      <p class="foot" id="foot"></p>
+    </aside>
+
+    <div class="drawer" id="drawer">
+      <div class="inner">
+        <h2>월별 원자료</h2>
+        <div class="scroll"><table id="tbl">
+          <thead><tr><th>연월</th><th>강수량</th><th>저수율</th></tr></thead>
+          <tbody></tbody></table></div>
+      </div>
     </div>
   </div>
-
-  <div class="tiles" id="tiles"></div>
-
-  <div class="card">
-    <h2>월별 강수량 (일평균)</h2>
-    <p class="sub" id="rain-sub"></p>
-    <div class="chart" id="rain-chart"></div>
-  </div>
-
-  <div class="card" id="store-card">
-    <h2>월별 농업용수 저수율</h2>
-    <p class="sub" id="store-sub"></p>
-    <div class="chart" id="store-chart"></div>
-  </div>
-
-  <details>
-    <summary>표로 보기</summary>
-    <div class="scroll"><table id="tbl">
-      <thead><tr><th>연월</th><th>강수량</th><th>저수율</th></tr></thead>
-      <tbody></tbody></table></div>
-  </details>
-
-  <footer id="foot"></footer>
 </div>
 
 <script>
 const $ = s => document.querySelector(s);
 const fmt = v => v === null ? "—" : (Math.round(v*100)/100).toLocaleString("ko-KR");
 const ymLabel = m => m.slice(0,4) + "-" + m.slice(4);
-let DATA = null, VIEW = [];
+let DATA = null, VIEW = [], AREA = null;
 
-fetch("data.json").then(r => {
-  if (!r.ok) throw new Error("HTTP " + r.status);
-  return r.json();
-}).then(d => { DATA = d; init(); })
+fetch("data.json").then(r => { if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
+  .then(d => { DATA = d; init(); })
   .catch(e => { $("#head-sub").textContent = "데이터를 불러오지 못했습니다 (" + e.message + ")"; });
 
 const label = a => a.name ? a.name + " (" + a.code + ")" : "지점 " + a.code;
 
 function init(){
   const M = DATA.meta;
-  $("#head-sub").textContent =
-    M.months.length + "개월 · " + DATA.areas.length + "개 지점 · 총 "
-    + M.total.toLocaleString("ko-KR") + "건 · 적재일 " + M.loadedAt;
-
+  $("#head-sub").textContent = M.months.length + "개월 · " + DATA.areas.length
+    + "개 지점 · 총 " + M.total.toLocaleString("ko-KR") + "건 · 적재일 " + M.loadedAt;
   M.months.forEach(m => {
     $("#from").insertAdjacentHTML("beforeend", `<option value="${m}">${ymLabel(m)}</option>`);
     $("#to").insertAdjacentHTML("beforeend", `<option value="${m}">${ymLabel(m)}</option>`);
   });
   $("#from").value = M.months[0];
   $("#to").value   = M.months[M.months.length-1];
-
   renderAreaOptions("");
   $("#area").value = DATA.areas.some(a => a.code === "108") ? "108" : DATA.areas[0].code;
 
   $("#q").addEventListener("input", e => renderAreaOptions(e.target.value.trim()));
   ["area","from","to"].forEach(id => $("#"+id).addEventListener("change", render));
 
-  $("#foot").innerHTML =
-    "출처: 농림축산식품 공공데이터 포털 — 지역별 누적 강수량 및 농업용수 저수율<br>"
-    + "단위는 원본 응답에 명시되지 않은 추정값입니다 (강수량 " + M.units.rainfall
-    + ", 저수율 " + M.units.storage + "). 강수량은 값의 크기와 계절 분포로 볼 때 "
-    + "월 누적이 아니라 일평균으로 판단했습니다.<br>"
-    + "저수율은 원본이 자료 없는 구간을 0으로 채워 보내므로 0을 결측으로 처리했습니다. "
-    + "실제 제공 구간은 2025-02부터이며 2025-10은 결손입니다.<br>"
-    + "지역명은 교차검증된 8개 지점만 실명으로, 나머지는 관측지점번호로 표시합니다.";
+  const dr = $("#drawer"), bt = $("#tabbtn");
+  bt.addEventListener("click", () => {
+    const open = dr.toggleAttribute("data-open");
+    bt.setAttribute("aria-expanded", String(open));
+    bt.querySelector(".ar").textContent = open ? "‹" : "›";
+    setTimeout(draw, 240);
+  });
+
+  $("#foot").innerHTML = "단위는 추정값입니다 — 강수량 " + M.units.rainfall
+    + ", 저수율 " + M.units.storage + ".<br>저수율 0은 결측으로 처리했습니다.";
+
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 120); });
   render();
 }
 
 function renderAreaOptions(q){
   const keep = $("#area").value;
-  const list = q
-    ? DATA.areas.filter(a => label(a).toLowerCase().includes(q.toLowerCase()))
-    : DATA.areas;
-  $("#area").innerHTML = list.map(a =>
-    `<option value="${a.code}">${label(a)}</option>`).join("");
+  const list = q ? DATA.areas.filter(a => label(a).toLowerCase().includes(q.toLowerCase()))
+                 : DATA.areas;
+  $("#area").innerHTML = list.map(a => `<option value="${a.code}">${label(a)}</option>`).join("");
   if (list.some(a => a.code === keep)) $("#area").value = keep;
   else if (list.length) render();
 }
 
 function render(){
-  const area = DATA.areas.find(a => a.code === $("#area").value);
-  if (!area) return;
+  AREA = DATA.areas.find(a => a.code === $("#area").value);
+  if (!AREA) return;
   const months = DATA.meta.months;
   let i0 = months.indexOf($("#from").value), i1 = months.indexOf($("#to").value);
-  if (i0 > i1) { [i0, i1] = [i1, i0]; }
-
+  if (i0 > i1) [i0, i1] = [i1, i0];
   VIEW = months.slice(i0, i1+1).map((m, k) => ({
-    ym: m,
-    rain: area.rainfall[i0+k],
-    store: area.storage[i0+k]
-  }));
+    ym: m, rain: AREA.rainfall[i0+k], store: AREA.storage[i0+k] }));
 
   const lastRain  = [...VIEW].reverse().find(r => r.rain  !== null);
   const lastStore = [...VIEW].reverse().find(r => r.store !== null);
@@ -194,109 +244,106 @@ function render(){
   $("#tiles").innerHTML =
       tile("최신 강수량(일평균)", lastRain ? fmt(lastRain.rain) : "—", U.rainfall,
            lastRain ? ymLabel(lastRain.ym) + " 기준" : "자료 없음")
-    + (area.hasStorage
+    + (AREA.hasStorage
         ? tile("최신 저수율", lastStore ? fmt(lastStore.store) : "—", U.storage,
-               lastStore ? ymLabel(lastStore.ym) + " 기준" : "자료 없음")
+               lastStore ? ymLabel(lastStore.ym) + " 기준" : "선택 기간에 자료 없음")
         : tile("최신 저수율", "미제공", "", "이 지점은 저수율 자료가 없습니다"))
     + tile("관측 개월", obs.toLocaleString("ko-KR"), "개월",
            ymLabel(VIEW[0].ym) + " ~ " + ymLabel(VIEW[VIEW.length-1].ym))
-    + tile("지점", area.name || "이름 미확인", "", "관측지점번호 " + area.code);
+    + tile("지점", AREA.name || "이름 미확인", "", "관측지점번호 " + AREA.code);
 
-  $("#rain-sub").textContent = label(area) + " · 단위 " + U.rainfall;
-  drawChart($("#rain-chart"), VIEW.map(r => r.rain), VIEW.map(r => r.ym),
-            "var(--rain)", "var(--rain-fill)", "강수량", U.rainfall);
-
-  if (area.hasStorage) {
-    // PLAN.md 2.1 — 값이 존재하는 구간으로 가로축을 축소한다
-    const has = VIEW.map((r, k) => r.store !== null ? k : -1).filter(k => k >= 0);
-    $("#store-card").style.display = "";
-    if (has.length) {
-      const seg = VIEW.slice(has[0], has[has.length-1] + 1);
-      $("#store-sub").textContent = label(area) + " · 단위 " + U.storage
-        + " · " + ymLabel(seg[0].ym) + " ~ " + ymLabel(seg[seg.length-1].ym) + " 제공";
-      drawChart($("#store-chart"), seg.map(r => r.store), seg.map(r => r.ym),
-                "var(--store)", "var(--store-fill)", "저수율", U.storage);
-    } else {
-      $("#store-sub").textContent = label(area) + " · 선택한 기간에 저수율 자료가 없습니다";
-      $("#store-chart").innerHTML = "";
-    }
-  } else {
-    $("#store-card").style.display = "none";
-  }
+  $("#rain-sub").textContent  = label(AREA) + " · " + U.rainfall;
+  $("#store-card").style.display = AREA.hasStorage ? "" : "none";
 
   $("#tbl tbody").innerHTML = VIEW.map(r =>
     `<tr><td>${ymLabel(r.ym)}</td><td>${fmt(r.rain)}</td>`
-    + `<td>${area.hasStorage ? fmt(r.store) : '<span class="muted">미제공</span>'}</td></tr>`
-  ).join("");
+    + `<td>${AREA.hasStorage ? fmt(r.store) : '<span class="muted">미제공</span>'}</td></tr>`).join("");
+
+  draw();
+}
+
+function draw(){
+  if (!AREA) return;
+  drawChart($("#rain-chart"), VIEW.map(r => r.rain), VIEW.map(r => r.ym),
+            "var(--rain)", "var(--rain-fill)", "강수량", DATA.meta.units.rainfall);
+  if (!AREA.hasStorage) return;
+  const has = VIEW.map((r,k) => r.store !== null ? k : -1).filter(k => k >= 0);
+  const U = DATA.meta.units;
+  if (!has.length){
+    $("#store-sub").textContent = label(AREA) + " · 선택 기간에 자료가 없습니다";
+    $("#store-chart").innerHTML = '<div class="empty">이 기간에는 저수율 자료가 없습니다</div>';
+    return;
+  }
+  const seg = VIEW.slice(has[0], has[has.length-1]+1);
+  $("#store-sub").textContent = label(AREA) + " · " + U.storage + " · "
+    + ymLabel(seg[0].ym) + " ~ " + ymLabel(seg[seg.length-1].ym) + " 제공";
+  drawChart($("#store-chart"), seg.map(r => r.store), seg.map(r => r.ym),
+            "var(--store)", "var(--store-fill)", "저수율", U.storage);
 }
 
 const tile = (k, v, u, s) =>
   `<div class="tile"><div class="k">${k}</div>
-   <div class="v">${v}${u ? `<span class="u">${u}</span>` : ""}</div>
+   <div class="v">${v}${u ? `<small>${u}</small>` : ""}</div>
    <div class="s">${s}</div></div>`;
 
+/* 컨테이너의 실제 픽셀 크기로 그린다 — viewBox 를 늘려 찌그러뜨리지 않는다 */
 function drawChart(host, vals, months, stroke, fill, name, unit){
-  const W = 900, H = 260, P = { t: 14, r: 14, b: 30, l: 46 };
+  const W = Math.max(240, host.clientWidth), H = Math.max(150, host.clientHeight);
+  const P = { t: 12, r: 12, b: 26, l: 44 };
   const iw = W - P.l - P.r, ih = H - P.t - P.b;
   const nums = vals.filter(v => v !== null);
-  const max = nums.length ? Math.max(...nums) : 1;
-  const top = max <= 0 ? 1 : max * 1.12;
+  const top = nums.length && Math.max(...nums) > 0 ? Math.max(...nums) * 1.12 : 1;
   const n = vals.length;
   const X = i => P.l + (n === 1 ? iw/2 : iw * i / (n-1));
   const Y = v => P.t + ih - (v / top) * ih;
 
-  const ticks = 4, grid = [], ylab = [];
+  const ticks = H < 220 ? 3 : 4, grid = [], ylab = [];
   for (let g = 0; g <= ticks; g++){
     const v = top * g / ticks, y = Y(v);
-    grid.push(`<line x1="${P.l}" y1="${y}" x2="${W-P.r}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`);
-    ylab.push(`<text x="${P.l-9}" y="${y+4}" text-anchor="end" font-size="11" fill="var(--text-3)">${fmt(v)}</text>`);
+    grid.push(`<line x1="${P.l}" y1="${y.toFixed(1)}" x2="${W-P.r}" y2="${y.toFixed(1)}" stroke="var(--grid)" stroke-width="1"/>`);
+    ylab.push(`<text x="${P.l-8}" y="${(y+4).toFixed(1)}" text-anchor="end" font-size="11" font-family="var(--mono)" fill="var(--text-3)">${fmt(v)}</text>`);
   }
-
-  const step = Math.max(1, Math.ceil(n / 7)), xlab = [];
+  const want = Math.max(2, Math.floor(iw / 78));
+  const step = Math.max(1, Math.ceil(n / want)), xlab = [];
   for (let i = 0; i < n; i += step)
-    xlab.push(`<text x="${X(i)}" y="${H-P.b+18}" text-anchor="middle" font-size="11" fill="var(--text-3)">${ymLabel(months[i])}</text>`);
+    xlab.push(`<text x="${X(i).toFixed(1)}" y="${H-P.b+17}" text-anchor="middle" font-size="11" font-family="var(--mono)" fill="var(--text-3)">${ymLabel(months[i])}</text>`);
 
   const segs = []; let cur = [];
-  vals.forEach((v, i) => {
-    if (v === null){ if (cur.length) segs.push(cur); cur = []; }
-    else cur.push([X(i), Y(v), i]);
-  });
+  vals.forEach((v, i) => { if (v === null){ if (cur.length) segs.push(cur); cur = []; }
+                          else cur.push([X(i), Y(v)]); });
   if (cur.length) segs.push(cur);
 
   const paths = segs.map(s => {
     const d = s.map((p,k) => (k ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1)).join(" ");
     const area = s.length > 1
-      ? `<path d="${d} L${s[s.length-1][0].toFixed(1)} ${(P.t+ih).toFixed(1)} L${s[0][0].toFixed(1)} ${(P.t+ih).toFixed(1)} Z" fill="${fill}" stroke="none"/>` : "";
+      ? `<path d="${d} L${s[s.length-1][0].toFixed(1)} ${(P.t+ih).toFixed(1)} L${s[0][0].toFixed(1)} ${(P.t+ih).toFixed(1)} Z" fill="${fill}"/>` : "";
     const dot = s.length === 1
-      ? `<circle cx="${s[0][0].toFixed(1)}" cy="${s[0][1].toFixed(1)}" r="4.5" fill="${stroke}"/>` : "";
+      ? `<circle cx="${s[0][0].toFixed(1)}" cy="${s[0][1].toFixed(1)}" r="4" fill="${stroke}"/>` : "";
     return area + `<path d="${d}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` + dot;
   }).join("");
 
   host.innerHTML =
-    `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} 시계열 차트">
+    `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} 시계열">
        ${grid.join("")}${ylab.join("")}${xlab.join("")}${paths}
        <line id="cx" y1="${P.t}" y2="${P.t+ih}" stroke="var(--text-3)" stroke-width="1" stroke-dasharray="3 3" opacity="0"/>
-       <circle id="cd" r="5" fill="${stroke}" stroke="var(--surface-1)" stroke-width="2" opacity="0"/>
+       <circle id="cd" r="4.5" fill="${stroke}" stroke="var(--surface-1)" stroke-width="2" opacity="0"/>
        <rect x="${P.l}" y="${P.t}" width="${iw}" height="${ih}" fill="transparent" id="hit"/>
      </svg><div class="tip"></div>`;
 
   const svg = host.querySelector("svg"), tip = host.querySelector(".tip");
   const cx = svg.querySelector("#cx"), cd = svg.querySelector("#cd");
-
   svg.querySelector("#hit").addEventListener("mousemove", ev => {
     const r = svg.getBoundingClientRect();
-    const sx = (ev.clientX - r.left) / r.width * W;
-    let i = n === 1 ? 0 : Math.round((sx - P.l) / iw * (n-1));
+    let i = n === 1 ? 0 : Math.round(((ev.clientX - r.left) - P.l) / iw * (n-1));
     i = Math.max(0, Math.min(n-1, i));
     const v = vals[i];
     cx.setAttribute("x1", X(i)); cx.setAttribute("x2", X(i)); cx.setAttribute("opacity", "1");
-    if (v === null){ cd.setAttribute("opacity","0"); }
+    if (v === null) cd.setAttribute("opacity","0");
     else { cd.setAttribute("cx", X(i)); cd.setAttribute("cy", Y(v)); cd.setAttribute("opacity","1"); }
     tip.innerHTML = `<b>${ymLabel(months[i])}</b>${name} ${fmt(v)}${v===null?"":" "+unit}`;
     tip.style.opacity = "1";
-    const px = X(i) / W * r.width;
-    tip.style.left = Math.min(Math.max(px - tip.offsetWidth/2, 0), r.width - tip.offsetWidth) + "px";
-    tip.style.top  = "0px";
+    tip.style.left = Math.min(Math.max(X(i) - tip.offsetWidth/2, 0), W - tip.offsetWidth) + "px";
+    tip.style.top = "0px";
   });
   svg.querySelector("#hit").addEventListener("mouseleave", () => {
     tip.style.opacity = "0"; cx.setAttribute("opacity","0"); cd.setAttribute("opacity","0");
