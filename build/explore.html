@@ -35,6 +35,10 @@
   body{margin:0;background:var(--surface-0);color:var(--text-1);
     font:15px/1.6 system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif;}
   .wrap{max-width:1100px;margin:0 auto;padding:32px 16px 64px}
+  .back{display:inline-block;margin-bottom:20px;color:var(--text-2);text-decoration:none;
+    font-size:14px;border:1px solid var(--border);border-radius:999px;padding:7px 16px;
+    background:var(--surface-1)}
+  .back:hover,.back:focus-visible{color:var(--text-1)}
   header h1{font-size:26px;margin:0 0 6px;letter-spacing:-.01em}
   header p{margin:0;color:var(--text-2);font-size:14px}
   .card{background:var(--surface-1);border:1px solid var(--border);
@@ -74,6 +78,7 @@
 </head>
 <body>
 <div class="wrap">
+  <a class="back" href="index.html">&#8592; 돌아가기</a>
   <header>
     <h1>지역별 강수량 · 농업용수 저수율</h1>
     <p id="head-sub">데이터를 불러오는 중…</p>
