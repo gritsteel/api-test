@@ -22,7 +22,7 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;overflow:hidden;background:var(--surface-0);color:var(--text-1);
+  body{word-break:keep-all;overflow-wrap:break-word;margin:0;overflow:hidden;background:var(--surface-0);color:var(--text-1);
     font:16px/1.7 var(--sans);-webkit-font-smoothing:antialiased}
   .num,.tile .v,th,td{font-variant-numeric:tabular-nums}
   :focus-visible{outline:2px solid var(--rain);outline-offset:3px}
@@ -40,6 +40,17 @@
   .bar .lnk{margin-left:auto;color:var(--text-2);text-decoration:none;font-size:14.5px;
     white-space:nowrap}
   @media (max-width:1280px){.bar .meta,.bar .sep{display:none}}
+  .m-title{display:none}
+  @media (max-width:700px){
+    .app{padding:0 0 18px;gap:0}
+    .bar{border-radius:0;padding:10px 16px;gap:12px;
+      box-shadow:0 1px 0 var(--border)}
+    .bar h1{display:none}
+    .stage{padding:14px 16px 0}
+    .m-title{display:block;margin:0 0 12px}
+    .m-title h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.02em}
+    .m-title p{margin:2px 0 0;font-size:12.5px;color:var(--text-2);font-weight:300}
+  }
   .bar .lnk:hover,.bar .lnk:focus-visible{color:var(--rain)}
 
   .stage{flex:1;min-height:0;display:flex;gap:14px}
@@ -142,11 +153,15 @@
     <span class="sep"></span>
     <h1>지역별 강수량 · 농업용수 저수율</h1>
     <span class="meta" id="head-sub">데이터를 불러오는 중…</span>
-    <a class="lnk" href="index.html#overview">&#8592; 개요 보기</a>
+    <a class="lnk" href="index.html#overview">개요 보기</a>
   </nav>
 
   <div class="stage">
     <div class="main">
+      <div class="m-title">
+        <h1>지역별 강수량 · 농업용수 저수율</h1>
+        <p id="m-sub"></p>
+      </div>
       <div class="tiles" id="tiles"></div>
       <div class="charts">
         <section class="card">
@@ -204,8 +219,10 @@ const label = a => a.name ? a.name + " (" + a.code + ")" : "지점 " + a.code;
 
 function init(){
   const M = DATA.meta;
-  $("#head-sub").textContent = M.months.length + "개월 · " + DATA.areas.length
-    + "개 지점 · 총 " + M.total.toLocaleString("ko-KR") + "건 · 적재일 " + M.loadedAt;
+  const meta = M.months.length + "개월 · " + DATA.areas.length + "개 지점 · 총 "
+    + M.total.toLocaleString("ko-KR") + "건 · 적재일 " + M.loadedAt;
+  $("#head-sub").textContent = meta;
+  $("#m-sub").textContent = meta;
   M.months.forEach(m => {
     $("#from").insertAdjacentHTML("beforeend", `<option value="${m}">${ymLabel(m)}</option>`);
     $("#to").insertAdjacentHTML("beforeend", `<option value="${m}">${ymLabel(m)}</option>`);
