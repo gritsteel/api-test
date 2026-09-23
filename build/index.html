@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>관측 — 지역별 강수량·저수율</title>
+<title>강수 — 지역별 강수량·저수율</title>
+<link rel="icon" type="image/svg+xml" href="logo/gangsu-symbol.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap">
@@ -36,10 +37,8 @@
   .nav .bar{pointer-events:auto;display:flex;align-items:center;gap:34px;
     background:var(--surface);border-radius:999px;padding:14px 26px;
     box-shadow:0 2px 20px rgba(20,22,26,.07)}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;
-    letter-spacing:-.01em;white-space:nowrap}
-  .brand i{width:22px;height:22px;border-radius:999px;flex:none;
-    background:linear-gradient(150deg,var(--rain),var(--store));display:block}
+  .brand{display:flex;align-items:center;flex:none;text-decoration:none}
+  .brand img{height:28px;width:auto;display:block}
   .nav menu{display:flex;gap:26px;margin:0;padding:0;list-style:none;flex:1}
   .nav a{color:var(--ink-2);text-decoration:none;font-size:14.5px;font-weight:400}
   .nav a:hover,.nav a:focus-visible{color:var(--ink-1)}
@@ -155,7 +154,7 @@
 
 <nav class="nav" aria-label="주요">
   <div class="in"><div class="bar">
-    <span class="brand"><i></i>관측</span>
+    <a class="brand" href="index.html" aria-label="강수 홈"><img src="logo/gangsu-horizontal.svg" alt="강수"></a>
     <menu>
       <li><a href="#figures">기록</a></li>
       <li><a href="#rhythm">비의 리듬</a></li>
@@ -228,7 +227,7 @@
   <div class="in">
     <div class="fgrid">
       <div>
-        <span class="brand" style="font-size:19px"><i></i>관측</span>
+        <img src="logo/gangsu-horizontal.svg" alt="강수" style="height:38px;width:auto;display:block">
         <p style="margin:16px 0 0;font-size:14px;color:var(--ink-2);font-weight:300;max-width:34ch">
           공공 관측 데이터를 정직하게 보여주는 정적 페이지입니다.</p>
       </div>
