@@ -69,7 +69,7 @@
   .dots .ctl:hover{color:var(--ink-1)}
 
   /* ---- 섹션 공통 ---- */
-  section{padding-block:104px}
+  section{padding-block:88px}
   .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.09em;
     text-transform:uppercase;color:var(--ink-3);margin:0 0 14px}
   h2{margin:0;font-size:clamp(26px,3.3vw,38px);font-weight:600;
@@ -121,7 +121,7 @@
 
   /* ---- CTA ---- */
   .cta{background:var(--surface);border:1px solid var(--line);border-radius:20px;
-    padding:46px 40px;display:flex;flex-wrap:wrap;gap:28px;
+    padding:34px 36px;display:flex;flex-wrap:wrap;gap:28px;
     align-items:center;justify-content:space-between}
   .cta h2{font-size:clamp(23px,2.6vw,30px)}
   .cta p{margin:12px 0 0;color:var(--ink-2);font-weight:300;max-width:46ch}
@@ -156,10 +156,10 @@
   <div class="in"><div class="bar">
     <a class="brand" href="index.html" aria-label="강수 홈"><img src="logo/gangsu-horizontal.svg" alt="강수"></a>
     <menu>
+      <li><a href="explore.html">지점 조회</a></li>
       <li><a href="#figures">기록</a></li>
       <li><a href="#rhythm">비의 리듬</a></li>
       <li><a href="#zero">0의 의미</a></li>
-      <li><a href="explore.html">지점 조회</a></li>
     </menu>
     <span class="kr num">2019 — 2026</span>
   </div></div>
@@ -173,6 +173,16 @@
     <div class="dots" id="dots"></div>
   </div>
 </header>
+
+<section id="go" style="padding-block:72px 0">
+  <div class="in"><div class="cta">
+    <div>
+      <h2>지점 하나를 열어 보세요</h2>
+      <p>746개 관측지점의 월별 강수량과 저수율을 기간을 바꿔 가며 볼 수 있습니다.</p>
+    </div>
+    <a class="btn" href="explore.html">지점 조회 열기 <span aria-hidden="true">→</span></a>
+  </div></div>
+</section>
 
 <section id="figures">
   <div class="in">
@@ -213,15 +223,6 @@
   </div>
 </section>
 
-<section>
-  <div class="in"><div class="cta">
-    <div>
-      <h2>지점 하나를 열어 보세요</h2>
-      <p>746개 관측지점의 월별 강수량과 저수율을 기간을 바꿔 가며 볼 수 있습니다.</p>
-    </div>
-    <a class="btn" href="explore.html">지점 조회 열기 <span aria-hidden="true">→</span></a>
-  </div></div>
-</section>
 
 <footer>
   <div class="in">
@@ -259,6 +260,18 @@
 <button class="totop" id="totop" aria-label="맨 위로">↑</button>
 
 <script>
+/* 좁은 화면에서는 도구(화면 A)를 진입점으로 삼는다 — PLAN.md 3.0
+   #overview 로 들어왔거나 이미 개요를 본 세션이면 튕기지 않는다.
+   replace 라 뒤로 가기 기록에 남지 않는다. */
+(function(){
+  try{
+    if (location.hash === "#overview" || sessionStorage.getItem("gangsu-overview") === "1"){
+      sessionStorage.setItem("gangsu-overview","1"); return;
+    }
+    if (matchMedia("(max-width: 767px)").matches) location.replace("explore.html");
+  }catch(e){ /* 스토리지가 막힌 환경에서는 랜딩을 그대로 보여준다 */ }
+})();
+
 const $=s=>document.querySelector(s);
 const fmtN=n=>n.toLocaleString("ko-KR");
 const DAYS=[31,28,31,30,31,30,31,31,30,31,30,31];
